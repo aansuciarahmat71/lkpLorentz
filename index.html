@@ -42,6 +42,7 @@ canvas{width:100%;max-width:520px;display:block;margin:8px auto;border:1px solid
 .eq .l{text-align:right;font-style:italic}.eq .o{text-align:center}.eq .fin{font-weight:700;color:var(--ac2)}
 .fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.25;margin:0 2px}.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 4px}
 .nt{margin-top:6px;font-size:.95rem}
+textarea{resize:vertical;overflow:hidden;font-size:16px;line-height:1.5}
 .tfrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0}.ptxt{display:none}
 @media print{:root{--bg:#fff;--card:#fff;--ink:#000;--mut:#444;--line:#999;--ac:#1d5c8a;--ac2:#b5472a}
 textarea{display:none}.ptxt{display:block;border:1px solid #999;border-radius:6px;padding:6px;white-space:pre-wrap;min-height:2.2em;margin-bottom:6px}
@@ -271,7 +272,13 @@ function upl(n,inp){
   inp.value='';
 }
 function delUp(n,i){UP[n].splice(i,1);showUp(n)}
+function grow(t){t.style.height='auto';t.style.height=Math.max(t.scrollHeight+2,70)+'px'}
+function growAll(){document.querySelectorAll('textarea').forEach(grow)}
+document.querySelectorAll('textarea').forEach(t=>t.addEventListener('input',()=>grow(t)));
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>setTimeout(growAll,0)));
+addEventListener('resize',growAll);
 draw1();draw2();
+growAll();
 </script>
 </body>
 </html>
