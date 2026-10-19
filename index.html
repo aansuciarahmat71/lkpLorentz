@@ -164,6 +164,8 @@ header{background:#1d5c8a!important;-webkit-print-color-adjust:exact;print-color
 
 <div class="card"><h2>Kumpulkan ke Guru</h2><p>Setelah semua terisi, klik <b>Simpan sebagai PDF</b> di bawah. Pada jendela cetak, pilih tujuan <b>Simpan sebagai PDF</b> (di HP: Bagikan/Cetak → Simpan PDF). Seluruh isian, jawaban Benar/Salah, catatan, dan foto jawaban uraian ikut masuk ke PDF. Kirim <b>satu file PDF</b> itu ke gurumu.</p></div>
 <div style="text-align:center;margin:16px 0"><button class="btn" onclick="cetak()">Simpan sebagai PDF</button></div>
+<p id="autoNote" style="text-align:center;font-size:.85rem;color:var(--mut);margin:0 0 6px">💾 Jawabanmu tersimpan otomatis di browser perangkat ini, jadi aman jika halaman di-refresh. Gunakan HP/browser yang sama saat melanjutkan.</p>
+<div style="text-align:center;margin:0 0 20px"><button class="btn" style="background:var(--ac)" onclick="hapusSemua()">🗑 Hapus semua jawaban</button></div>
 </main>
 
 <script>
@@ -269,12 +271,12 @@ function upl(n,inp){
     if(f.type.indexOf('image/')!==0){alert('Hanya file gambar (JPG/PNG) yang bisa diunggah agar ikut masuk ke PDF.');return}
     if(f.size>3*1024*1024){alert(f.name+': ukuran maksimal 3 MB.');return}
     const r=new FileReader();
-    r.onload=()=>{UP[n].push({name:f.name,size:f.size,data:r.result});showUp(n)};
+    r.onload=()=>{UP[n].push({name:f.name,size:f.size,data:r.result});showUp(n);saveUp()};
     r.readAsDataURL(f);
   });
   inp.value='';
 }
-function delUp(n,i){UP[n].splice(i,1);showUp(n)}
+function delUp(n,i){UP[n].splice(i,1);showUp(n);saveUp()}
 function grow(t){t.style.height='auto';t.style.height=Math.max(t.scrollHeight+2,70,t._min||0)+'px'}
 function growAll(){document.querySelectorAll('textarea').forEach(grow)}
 document.querySelectorAll('textarea').forEach(t=>{
@@ -293,6 +295,81 @@ document.querySelectorAll('textarea').forEach(t=>{
 document.querySelectorAll('textarea').forEach(t=>t.addEventListener('input',()=>grow(t)));
 document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>setTimeout(growAll,0)));
 addEventListener('resize',growAll);
+
+/* ===== PENYIMPANAN OTOMATIS (localStorage + IndexedDB untuk foto) =====
+   Naikkan VERSI_LKPD jika struktur LKPD berubah besar dan semua jawaban lama harus dikosongkan. */
+const VERSI_LKPD=1,LS_KEY='lkpd-gaya-lorentz:v'+VERSI_LKPD,IDB_NAME='lkpd-gaya-lorentz-foto-v'+VERSI_LKPD;
+const norm=t=>String(t||'').replace(/\s+/g,' ').trim();
+function fieldKey(el,seen){
+  let k;
+  if(el.id)k='#'+el.id;
+  else{
+    const sec=el.closest('section.act'),sid=sec?sec.id:'';
+    const q=el.closest('.q'),tr=el.closest('tr');
+    if(q){const b=q.querySelector('b');k=sid+'|q|'+norm(b&&b.textContent)}
+    else if(tr){
+      const tb=tr.closest('table'),hd=tb?norm(tb.rows[0].textContent):'';
+      k=sid+'|t|'+hd+'|'+Array.from(tr.cells).filter(c=>!c.querySelector('input')).map(c=>norm(c.textContent)).join(',');
+    }else k=sid+'|x';
+  }
+  seen[k]=(seen[k]||0)+1;
+  return seen[k]>1?k+'#'+seen[k]:k;
+}
+let FIELDS=[];
+function collectFields(){
+  const seen={};
+  FIELDS=Array.from(document.querySelectorAll('main textarea, main input:not([type=file]):not([type=range]):not([type=radio])')).filter(e=>!e.closest('.ctl')).map(e=>({el:e}));
+  FIELDS.forEach(f=>f.key=fieldKey(f.el,seen));
+}
+function lsGet(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'null')||{f:{},r:{}}}catch(e){return{f:{},r:{}}}}
+let saveTimer=0;
+function saveNow(){
+  clearTimeout(saveTimer);
+  try{
+    const d={f:{},r:{}};
+    FIELDS.forEach(x=>{if(x.el.value!=='')d.f[x.key]=x.el.value});
+    document.querySelectorAll('input[type=radio]:checked').forEach(r=>{d.r[r.name]=r.value});
+    localStorage.setItem(LS_KEY,JSON.stringify(d));
+  }catch(e){}
+}
+function saveSoon(){clearTimeout(saveTimer);saveTimer=setTimeout(saveNow,300)}
+function restoreAnswers(){
+  const d=lsGet();
+  FIELDS.forEach(x=>{if(d.f&&d.f[x.key]!=null)x.el.value=d.f[x.key]});
+  Object.keys(d.r||{}).forEach(n=>{
+    const r=document.querySelector('input[type=radio][name="'+n+'"][value="'+d.r[n]+'"]');if(r)r.checked=true;
+  });
+}
+function idb(){
+  return new Promise((ok,no)=>{
+    if(!window.indexedDB)return no();
+    const q=indexedDB.open(IDB_NAME,1);
+    q.onupgradeneeded=()=>q.result.createObjectStore('kv');
+    q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error);
+  });
+}
+function saveUp(){
+  idb().then(db=>{const tx=db.transaction('kv','readwrite');tx.objectStore('kv').put(UP,'up');tx.oncomplete=()=>db.close()}).catch(()=>{});
+}
+function restoreUp(){
+  idb().then(db=>{
+    const g=db.transaction('kv').objectStore('kv').get('up');
+    g.onsuccess=()=>{const v=g.result;if(v){[1,2].forEach(n=>{UP[n]=Array.isArray(v[n])?v[n]:[];showUp(n)})}db.close()};
+  }).catch(()=>{});
+}
+function hapusSemua(){
+  if(!confirm('Hapus SEMUA jawaban dan foto yang tersimpan di perangkat ini? Tindakan ini tidak bisa dibatalkan.'))return;
+  try{localStorage.removeItem(LS_KEY)}catch(e){}
+  const done=()=>location.reload();
+  try{const r=indexedDB.deleteDatabase(IDB_NAME);r.onsuccess=r.onerror=r.onblocked=done}catch(e){done()}
+}
+collectFields();
+restoreAnswers();
+restoreUp();
+document.addEventListener('input',saveSoon);
+document.addEventListener('change',saveSoon);
+addEventListener('pagehide',saveNow);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveNow()});
 draw1();draw2();
 growAll();
 </script>
