@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LKPD Gaya Lorentz</title>
+<style>
+:root{--bg:#f6f3ea;--card:#fff;--ink:#222;--mut:#666;--ac:#1d5c8a;--ac2:#b5472a;--line:#d9d2bf}
+@media (prefers-color-scheme:dark){:root{--bg:#171a1e;--card:#22262b;--ink:#e8e8e8;--mut:#a0a6ad;--ac:#6db3e8;--ac2:#f0906f;--line:#3a4048}}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+header{background:var(--ac);color:#fff;padding:20px 16px;text-align:center}
+header h1{margin:0;font-size:1.5rem}header p{margin:4px 0 0;opacity:.9;font-size:.9rem}
+main{max-width:860px;margin:0 auto;padding:16px}
+.id{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:14px}
+.id label{font-size:.8rem;color:var(--mut)}.id input{width:100%;padding:7px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--ink)}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tabs button{flex:1;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;cursor:pointer;font-weight:600}
+.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+section.act{display:none}section.act.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+h2{margin:0 0 8px;font-size:1.2rem;color:var(--ac)}h3{margin:12px 0 6px;font-size:1rem}
+.box{border-left:4px solid var(--ac2);background:rgba(181,71,42,.08);padding:8px 12px;border-radius:0 8px 8px 0;margin:8px 0}
+.vid{position:relative;padding-top:56.25%;border-radius:8px;overflow:hidden;background:#000}
+.vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+table{width:100%;border-collapse:collapse;font-size:.9rem;margin:6px 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:6px;text-align:center;white-space:nowrap}th{background:rgba(29,92,138,.12)}
+td input,td select{width:100%;min-width:70px;padding:5px;border:1px solid var(--line);border-radius:5px;background:transparent;color:var(--ink)}
+textarea{width:100%;min-height:70px;padding:8px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--ink);font:inherit}
+.cw{stroke:currentColor;stroke-width:3;fill:none}.hw{stroke:#b08d57;stroke-width:7;fill:none;stroke-linecap:round}.ar{stroke:var(--ac);fill:var(--ac);stroke-width:3}.fa{stroke:var(--ac2);fill:var(--ac2);stroke-width:3}.lb{font-weight:700}svg{color:var(--ink)}
+.fcard{border:1px dashed var(--ac);border-radius:8px;padding:8px;margin:6px 0;text-align:left}.fcard img{max-width:100%;max-height:260px;display:block;margin:6px 0;border-radius:6px}a.btn{text-decoration:none;display:inline-block}
+canvas{width:100%;max-width:520px;display:block;margin:8px auto;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+.ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin:6px 0}
+.ctl label{font-size:.85rem}.ctl select,.ctl input[type=range]{padding:4px}
+.res{text-align:center;font-weight:600;color:var(--ac2);min-height:1.5em}
+.btn{padding:10px 16px;border:0;border-radius:8px;background:var(--ac2);color:#fff;font-weight:600;cursor:pointer}
+.q{margin:10px 0}.q b{display:block;margin-bottom:4px}
+@media print{.tabs,.btn,.ctl{display:none}section.act{display:block!important}.vid{display:none}body{background:#fff;color:#000}}
+.pb{margin:8px 0}.st{margin:10px 0;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:rgba(29,92,138,.06)}
+.st>.tag{display:block;font-weight:700;color:var(--ac);margin-bottom:4px}.dk{margin:0;padding-left:20px}
+.eq{display:grid;grid-template-columns:max-content 1.4em 1fr;gap:4px 6px;align-items:center;margin:4px 0;overflow-x:auto}
+.eq .l{text-align:right;font-style:italic}.eq .o{text-align:center}.eq .fin{font-weight:700;color:var(--ac2)}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.25;margin:0 2px}.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 4px}
+.nt{margin-top:6px;font-size:.95rem}
+.tfrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0}.ptxt{display:none}
+@media print{:root{--bg:#fff;--card:#fff;--ink:#000;--mut:#444;--line:#999;--ac:#1d5c8a;--ac2:#b5472a}
+textarea{display:none}.ptxt{display:block;border:1px solid #999;border-radius:6px;padding:6px;white-space:pre-wrap;min-height:2.2em;margin-bottom:6px}
+.tfrow .btn,input[type=file]{display:none}.fcard{break-inside:avoid;border:1px solid #999}.fcard img{max-height:none}
+header{background:#1d5c8a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}tr,figure{break-inside:avoid}}
+</style>
+<noscript><style>section.act{display:block!important}.tabs{display:none}</style></noscript>
+</head>
+<body>
+<header>
+<h1>LKPD Gaya Lorentz</h1>
+<p>Kemagnetan · Fisika SMA Fase F · Disusun oleh AAN SUCIARAHMAT, M.Pd / SMAN 1 Majalengka</p>
+</header>
+<main>
+<noscript><div class="box" style="margin:10px 0"><b>Peringatan:</b> JavaScript tidak aktif atau diblokir oleh aplikasi pembuka file. Simulasi, tombol, dan fitur PDF tidak akan berfungsi. Buka file ini di Chrome (Android) atau akses lewat tautan web (iPhone), bukan lewat pratinjau file.</div></noscript>
+<div class="id">
+<div><label>Nama</label><input id="nama"></div><div><label>Kelas / Kelompok</label><input id="kelas"></div>
+</div>
+<div class="card">
+<b>Tujuan pembelajaran</b>
+<ol style="margin:6px 0 0;padding-left:20px">
+<li>Menyelidiki arah dan besar gaya Lorentz pada kawat berarus dalam medan magnet.</li>
+<li>Menyelidiki gaya magnetik antara dua kawat lurus sejajar berarus dan menentukan kapan tarik-menarik atau tolak-menolak.</li>
+</ol>
+</div>
+<div class="tabs">
+<button class="on" data-t="a1">Aktivitas 1: Gaya Lorentz</button>
+<button data-t="a2">Aktivitas 2: Dua Kawat Sejajar</button>
+</div>
+
+<!-- AKTIVITAS 1 -->
+<section class="act on" id="a1">
+<div class="card">
+<h2>Aktivitas 1: Gaya Lorentz pada Kawat Berarus</h2>
+<p>Gaya Lorentz muncul ketika kawat berarus listrik berada dalam medan magnet.</p>
+<div class="box"><b>Rumus:</b> F = B · I · L · sin θ &nbsp;&nbsp; (θ = sudut antara arah arus I dan arah medan B)<br>Arah F ditentukan kaidah tangan kanan: empat jari = arah B, ibu jari = arah I, telapak tangan = arah F (atau gunakan F = I × B).</div>
+<h3>A. Amati video percobaan</h3>
+<div class="vid"><iframe src="https://www.youtube.com/embed/5KiyTpmPHIo" title="The Lorentz force - experiment" allowfullscreen loading="lazy"></iframe></div>
+<p style="font-size:.85rem;color:var(--mut)">Jika video tidak tampil, buka: <a href="https://www.youtube.com/watch?v=5KiyTpmPHIo" target="_blank" rel="noopener">youtube.com/watch?v=5KiyTpmPHIo</a></p>
+<div class="q"><b>1. Apa yang terjadi pada kawat saat arus dialirkan?</b><textarea placeholder="Tuliskan pengamatanmu..."></textarea></div>
+<div class="q"><b>2. Apa yang terjadi ketika arah arus dibalik atau kutub magnet ditukar?</b><textarea></textarea></div>
+
+<h3>B. Eksplorasi simulasi arah gaya</h3>
+<p>Ubah arah arus dan arah medan magnet. Perhatikan arah gaya yang muncul.</p>
+<canvas id="c1" width="520" height="300"></canvas>
+<div class="ctl">
+<label>Arah arus I <select id="iDir"><option value="1,0">→ kanan</option><option value="-1,0">← kiri</option><option value="0,1">↑ atas</option><option value="0,-1">↓ bawah</option></select></label>
+<label>Arah medan B <select id="bDir"><option value="-1">⊗ masuk bidang</option><option value="1">⊙ keluar bidang</option></select></label>
+<label>Arus I: <span id="iv">2</span> A <input type="range" id="iR" min="1" max="10" value="2"></label>
+<label>B: <span id="bv">0.5</span> T <input type="range" id="bR" min="1" max="20" value="5"></label>
+</div>
+<div class="res" id="r1"></div>
+
+<h3>C. Tabel pengamatan arah gaya</h3>
+<table><tr><th>No</th><th>Arah arus</th><th>Arah medan B</th><th>Arah gaya (hasil simulasi)</th></tr>
+<tr><td>1</td><td>kanan</td><td>masuk</td><td><input></td></tr>
+<tr><td>2</td><td>kanan</td><td>keluar</td><td><input></td></tr>
+<tr><td>3</td><td>atas</td><td>masuk</td><td><input></td></tr>
+<tr><td>4</td><td>kiri</td><td>masuk</td><td><input></td></tr></table>
+
+<h3>D. Besar gaya (panjang kawat L = 0,2 m, θ = 90°)</h3>
+<table><tr><th>No</th><th>I (A)</th><th>B (T)</th><th>F (N), hasil hitung</th></tr>
+<tr><td>1</td><td>2</td><td>0,5</td><td><input></td></tr>
+<tr><td>2</td><td>4</td><td>0,5</td><td><input></td></tr>
+<tr><td>3</td><td>2</td><td>1,0</td><td><input></td></tr></table>
+
+<div class="q"><b>3. Bagaimana hubungan F terhadap I dan terhadap B?</b><textarea></textarea></div>
+<div class="q"><b>4. Pada kondisi apa gaya Lorentz bernilai nol? Jelaskan dengan rumus.</b><textarea></textarea></div>
+<div class="q"><b>5. Kesimpulan Aktivitas 1</b><textarea></textarea></div>
+<hr style="border:0;border-top:1px solid var(--line);margin:18px 0 6px"><h3>Contoh Soal dan Pembahasan</h3><div class="box"><b>Soal:</b> Kawat lurus sepanjang 40 cm dialiri arus 5 A ke kanan. Kawat berada dalam medan magnet homogen 0,3 T yang arahnya masuk bidang (tegak lurus kawat). Tentukan (a) besar dan arah gaya Lorentz, (b) besar gaya jika kawat membentuk sudut 30° terhadap arah medan.</div><div class="pb"><b>Pembahasan:</b><div class="st"><span class="tag">Diketahui</span><ul class="dk"><li>L = 40 cm = 0,4 m</li><li>I = 5 A (arah: ke kanan)</li><li>B = 0,3 T (arah: masuk bidang)</li></ul></div><div class="st"><span class="tag">(a) Besar dan arah gaya (θ = 90°, sin 90° = 1)</span><div class="eq"><span class="l">F</span><span class="o">=</span><span class="r">B · I · L · sin θ</span><span class="l"></span><span class="o">=</span><span class="r">0,3 × 5 × 0,4 × 1</span><span class="l"></span><span class="o">=</span><span class="r fin">0,6 N</span></div><div class="nt">Arah gaya:</div><div class="eq"><span class="l">F</span><span class="o">=</span><span class="r">I × B</span><span class="l"></span><span class="o">=</span><span class="r">(ke kanan) × (masuk bidang)</span><span class="l"></span><span class="o">=</span><span class="r fin"><b>ke atas</b> (kaidah tangan kanan)</span></div></div><div class="st"><span class="tag">(b) Besar gaya jika θ = 30° (sin 30° = 0,5)</span><div class="eq"><span class="l">F</span><span class="o">=</span><span class="r">B · I · L · sin θ</span><span class="l"></span><span class="o">=</span><span class="r">0,3 × 5 × 0,4 × 0,5</span><span class="l"></span><span class="o">=</span><span class="r fin">0,3 N</span></div></div></div><h3>Latihan 1: Benar atau Salah</h3><p><b>Pernyataan:</b> Kawat berarus listrik yang diletakkan sejajar dengan arah medan magnet mengalami gaya Lorentz yang paling besar.</p><div class="tfrow"><label><input type="radio" name="tf1" value="B"> Benar</label><label><input type="radio" name="tf1" value="S"> Salah</label><button class="btn" onclick="cekTF(1)">Periksa</button></div><div class="res" id="tfr1" style="text-align:left"></div><h3>Latihan 2: Uraian Singkat</h3><p>Kawat sepanjang 50 cm dialiri arus 4 A ke arah timur. Kawat berada dalam medan magnet 0,2 T yang arahnya ke atas (tegak lurus kawat). (a) Hitung besar gaya Lorentz pada kawat. (b) Tentukan arah gaya tersebut. Tuliskan langkah penyelesaianmu secara lengkap.</p><div class="q"><b>Catatan jawaban (opsional)</b><textarea id="un1" placeholder="Tuliskan ringkasan jawabanmu..."></textarea></div><div class="q"><b>Unggah foto/scan pembahasanmu (gambar JPG/PNG, boleh lebih dari satu, maks. 3 MB per foto; ikut tercetak di PDF)</b><input type="file" id="uf1" accept="image/*" multiple onchange="upl(1,this)"><div id="ui1"></div></div></div>
+</section>
+
+<!-- AKTIVITAS 2 -->
+<section class="act" id="a2">
+<div class="card">
+<h2>Aktivitas 2: Gaya Lorentz pada Dua Kawat Sejajar</h2>
+<p>Setiap kawat berarus menghasilkan medan magnet. Kawat lain di dekatnya mengalami gaya Lorentz akibat medan tersebut.</p>
+<div class="box"><b>Rumus (per satuan panjang):</b> F/L = μ₀ · I₁ · I₂ / (2π · d), &nbsp; μ₀ = 4π × 10⁻⁷ T·m/A<br>Arus searah → tarik-menarik. Arus berlawanan arah → tolak-menolak.</div>
+<h3>A. Amati video percobaan</h3>
+<div class="vid"><iframe src="https://www.youtube.com/embed/43AeuDvWc0k" title="MIT Physics Demo - Forces on a Current-Carrying Wire" allowfullscreen loading="lazy"></iframe></div>
+<p style="font-size:.85rem;color:var(--mut)">Jika video tidak tampil, buka: <a href="https://www.youtube.com/watch?v=43AeuDvWc0k" target="_blank" rel="noopener">youtube.com/watch?v=43AeuDvWc0k</a></p>
+<p style="font-size:.9rem">Dua kawat lentur digantung vertikal dan dihubungkan ke baterai 12 V, secara seri atau paralel.</p>
+<p style="margin:10px 0 4px"><b>Gambaran rangkaian</b> (panah biru = arah arus, panah oranye = arah gaya pada kawat)</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin:6px 0 12px"><figure style="margin:0;text-align:center;border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--card)"><svg viewBox="0 0 260 215" style="width:100%;max-height:240px" role="img" aria-label="Rangkaian paralel dua kawat"><path class="cw" d="M150 40 H40 V100 M40 130 V190 H150"/><line x1="28" y1="106" x2="52" y2="106" stroke="currentColor" stroke-width="4"/><line x1="33" y1="118" x2="47" y2="118" stroke="currentColor" stroke-width="7"/><text x="58" y="110" font-size="14" fill="currentColor" >+</text><text x="58" y="128" font-size="14" fill="currentColor" >−</text><text x="2" y="116" font-size="11" fill="currentColor">12 V</text><path class="hw" d="M90 40 V190 M150 40 V190"/><line x1="90" y1="70" x2="90" y2="117" class="ar"/><polygon points="84,115 96,115 90,125" class="ar"/><line x1="150" y1="70" x2="150" y2="117" class="ar"/><polygon points="144,115 156,115 150,125" class="ar"/><text x="70" y="100" font-size="14" fill="currentColor" class="lb">I₁</text><text x="158" y="100" font-size="14" fill="currentColor" class="lb">I₂</text><line x1="92" y1="165" x2="106" y2="165" class="fa"/><polygon points="104,159 104,171 114,165" class="fa"/><line x1="148" y1="165" x2="134" y2="165" class="fa"/><polygon points="136,159 136,171 126,165" class="fa"/></svg><figcaption style="font-size:.85rem"><b>Sambungan paralel</b></figcaption></figure><figure style="margin:0;text-align:center;border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--card)"><svg viewBox="0 0 260 215" style="width:100%;max-height:240px" role="img" aria-label="Rangkaian seri dua kawat"><path class="cw" d="M90 60 V40 H114 M124 40 H150 V60 M90 190 H150"/><line x1="114" y1="28" x2="114" y2="52" stroke="currentColor" stroke-width="4"/><line x1="124" y1="33" x2="124" y2="47" stroke="currentColor" stroke-width="7"/><text x="98" y="24" font-size="14" fill="currentColor" >+</text><text x="128" y="24" font-size="14" fill="currentColor" >−</text><text x="100" y="12" font-size="11" fill="currentColor">12 V</text><path class="hw" d="M90 60 V190 M150 60 V190"/><line x1="90" y1="80" x2="90" y2="127" class="ar"/><polygon points="84,125 96,125 90,135" class="ar"/><line x1="150" y1="135" x2="150" y2="88" class="ar"/><polygon points="144,90 156,90 150,80" class="ar"/><text x="70" y="112" font-size="14" fill="currentColor" class="lb">I₁</text><text x="158" y="112" font-size="14" fill="currentColor" class="lb">I₂</text><line x1="88" y1="165" x2="76" y2="165" class="fa"/><polygon points="78,159 78,171 68,165" class="fa"/><line x1="152" y1="165" x2="164" y2="165" class="fa"/><polygon points="162,159 162,171 172,165" class="fa"/></svg><figcaption style="font-size:.85rem"><b>Sambungan seri</b></figcaption></figure></div>
+<div class="q"><b>1. Saat kawat dihubungkan paralel, apa yang terjadi pada kedua kawat? Bagaimana arah arus di keduanya?</b><textarea></textarea></div>
+<div class="q"><b>2. Saat kawat dihubungkan seri, apa yang terjadi? Bagaimana arah arus di keduanya?</b><textarea></textarea></div>
+
+<h3>B. Eksplorasi simulasi</h3>
+<canvas id="c2" width="520" height="300"></canvas>
+<div class="ctl">
+<label>Rangkaian <select id="rg"><option value="m">Manual</option><option value="p">Paralel</option><option value="s">Seri</option></select></label>
+<label>Arus I₁ <select id="d1"><option value="1">↑ atas</option><option value="-1">↓ bawah</option></select></label>
+<label>Arus I₂ <select id="d2"><option value="1">↑ atas</option><option value="-1">↓ bawah</option></select></label>
+<label>I₁: <span id="i1v">5</span> A <input type="range" id="i1" min="1" max="20" value="5"></label>
+<label>I₂: <span id="i2v">5</span> A <input type="range" id="i2" min="1" max="20" value="5"></label>
+<label>Jarak d: <span id="dv">4</span> cm <input type="range" id="dd" min="1" max="10" value="4"></label>
+</div>
+<div class="ctl"><button class="btn" id="play">▶ Mainkan</button><button class="btn" id="reset" style="background:var(--ac)">↺ Ulangi</button></div>
+<p style="text-align:center;font-size:.85rem;color:var(--mut);margin:0">Pilih Paralel atau Seri, lalu tekan Mainkan untuk melihat kawat bergerak.</p>
+<div class="res" id="r2"></div>
+
+<h3>C. Tabel pengamatan</h3>
+<table><tr><th>No</th><th>Arah I₁</th><th>Arah I₂</th><th>Interaksi (tarik / tolak)</th></tr>
+<tr><td>1</td><td>atas</td><td>atas</td><td><input></td></tr>
+<tr><td>2</td><td>atas</td><td>bawah</td><td><input></td></tr></table>
+
+<table><tr><th>No</th><th>I₁ (A)</th><th>I₂ (A)</th><th>d (cm)</th><th>F/L (N/m), hasil hitung</th></tr>
+<tr><td>1</td><td>5</td><td>5</td><td>4</td><td><input></td></tr>
+<tr><td>2</td><td>10</td><td>5</td><td>4</td><td><input></td></tr>
+<tr><td>3</td><td>5</td><td>5</td><td>2</td><td><input></td></tr></table>
+
+<div class="q"><b>3. Jika I₁ diperbesar dua kali, bagaimana F/L? Jika jarak d diperkecil setengahnya, bagaimana F/L?</b><textarea></textarea></div>
+<div class="q"><b>4. Jelaskan dengan kaidah tangan kanan mengapa dua arus searah saling tarik.</b><textarea></textarea></div>
+<div class="q"><b>5. Kesimpulan Aktivitas 2</b><textarea></textarea></div>
+<hr style="border:0;border-top:1px solid var(--line);margin:18px 0 6px"><h3>Contoh Soal dan Pembahasan</h3><div class="box"><b>Soal:</b> Dua kawat lurus panjang sejajar berjarak 10 cm. Kawat pertama dialiri arus 10 A dan kawat kedua 5 A, searah. Tentukan (a) jenis interaksi kedua kawat, (b) gaya per satuan panjang, (c) gaya pada kawat sepanjang 2 m.</div><div class="pb"><b>Pembahasan:</b><div class="st"><span class="tag">Diketahui</span><ul class="dk"><li>I₁ = 10 A</li><li>I₂ = 5 A</li><li>d = 10 cm = 0,1 m</li><li>μ₀ = 4π × 10⁻⁷ T·m/A</li></ul></div><div class="st"><span class="tag">(a) Jenis interaksi</span><div class="nt">Arus searah → kedua kawat <b>tarik-menarik</b>.</div></div><div class="st"><span class="tag">(b) Gaya per satuan panjang</span><div class="eq"><span class="l">F/L</span><span class="o">=</span><span class="r"><span class="fr"><span>μ₀ · I₁ · I₂</span><span>2π · d</span></span></span><span class="l"></span><span class="o">=</span><span class="r"><span class="fr"><span>4π × 10⁻⁷ × 10 × 5</span><span>2π × 0,1</span></span></span><span class="l"></span><span class="o">=</span><span class="r"><span class="fr"><span>2 × 10⁻⁷ × 50</span><span>0,1</span></span></span><span class="l"></span><span class="o">=</span><span class="r"><span class="fr"><span>10⁻⁵</span><span>0,1</span></span></span><span class="l"></span><span class="o">=</span><span class="r fin">1 × 10⁻⁴ N/m</span></div></div><div class="st"><span class="tag">(c) Gaya pada kawat sepanjang L = 2 m</span><div class="eq"><span class="l">F</span><span class="o">=</span><span class="r">(F/L) × L</span><span class="l"></span><span class="o">=</span><span class="r">1 × 10⁻⁴ × 2</span><span class="l"></span><span class="o">=</span><span class="r fin">2 × 10⁻⁴ N</span></div></div></div><h3>Latihan 1: Benar atau Salah</h3><p><b>Pernyataan:</b> Jika jarak dua kawat sejajar berarus diubah menjadi dua kali semula, sedangkan arus tetap, maka gaya per satuan panjang menjadi setengah kali semula.</p><div class="tfrow"><label><input type="radio" name="tf2" value="B"> Benar</label><label><input type="radio" name="tf2" value="S"> Salah</label><button class="btn" onclick="cekTF(2)">Periksa</button></div><div class="res" id="tfr2" style="text-align:left"></div><h3>Latihan 2: Uraian Singkat</h3><p>Dua kawat lurus sejajar berjarak 20 cm dialiri arus 6 A dan 3 A dengan arah berlawanan. (a) Tentukan jenis interaksi kedua kawat. (b) Hitung gaya per satuan panjang. (c) Hitung gaya pada kawat sepanjang 1,5 m. Tuliskan langkah penyelesaianmu secara lengkap.</p><div class="q"><b>Catatan jawaban (opsional)</b><textarea id="un2" placeholder="Tuliskan ringkasan jawabanmu..."></textarea></div><div class="q"><b>Unggah foto/scan pembahasanmu (gambar JPG/PNG, boleh lebih dari satu, maks. 3 MB per foto; ikut tercetak di PDF)</b><input type="file" id="uf2" accept="image/*" multiple onchange="upl(2,this)"><div id="ui2"></div></div></div>
+</section>
+
+<div class="card"><h2>Kumpulkan ke Guru</h2><p>Setelah semua terisi, klik <b>Simpan sebagai PDF</b> di bawah. Pada jendela cetak, pilih tujuan <b>Simpan sebagai PDF</b> (di HP: Bagikan/Cetak → Simpan PDF). Seluruh isian, jawaban Benar/Salah, catatan, dan foto jawaban uraian ikut masuk ke PDF. Kirim <b>satu file PDF</b> itu ke gurumu.</p></div>
+<div style="text-align:center;margin:16px 0"><button class="btn" onclick="cetak()">Simpan sebagai PDF</button></div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('section.act').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');$(b.dataset.t).classList.add('on');draw1();draw2();
+});
+const col=()=>{const s=getComputedStyle(document.documentElement);return{ink:s.getPropertyValue('--ink').trim(),ac:s.getPropertyValue('--ac').trim(),ac2:s.getPropertyValue('--ac2').trim()}};
+function arrow(c,x1,y1,x2,y2,color,w=3){
+  const a=Math.atan2(y2-y1,x2-x1);c.strokeStyle=color;c.fillStyle=color;c.lineWidth=w;
+  c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();
+  c.beginPath();c.moveTo(x2,y2);c.lineTo(x2-12*Math.cos(a-.4),y2-12*Math.sin(a-.4));c.lineTo(x2-12*Math.cos(a+.4),y2-12*Math.sin(a+.4));c.fill();
+}
+function draw1(){
+  const cv=$('c1'),c=cv.getContext('2d'),k=col();c.clearRect(0,0,520,300);
+  const [ix,iy]=$('iDir').value.split(',').map(Number),bz=+$('bDir').value;
+  const I=+$('iR').value,B=+$('bR').value/10;$('iv').textContent=I;$('bv').textContent=B.toFixed(1);
+  // medan B simbol
+  c.strokeStyle=k.ink;c.fillStyle=k.ink;c.lineWidth=1.5;c.font='14px sans-serif';
+  for(let x=40;x<520;x+=60)for(let y=30;y<300;y+=60){
+    c.beginPath();c.arc(x,y,9,0,7);c.stroke();
+    if(bz>0){c.beginPath();c.arc(x,y,2.5,0,7);c.fill()}
+    else{c.beginPath();c.moveTo(x-6,y-6);c.lineTo(x+6,y+6);c.moveTo(x+6,y-6);c.lineTo(x-6,y+6);c.stroke()}
+  }
+  // kawat
+  const cx=260,cy=150;
+  c.lineWidth=8;c.strokeStyle='#b08d57';c.beginPath();c.moveTo(cx-ix*90-iy*0,cy+iy*90);c.lineTo(cx+ix*90,cy-iy*90);c.stroke();
+  arrow(c,cx-ix*40,cy+iy*40,cx+ix*60,cy-iy*60,k.ac,4);
+  // F = I x B, B=(0,0,bz); screen y down so flip
+  const fx=iy*bz,fy=-ix*bz; // dalam koordinat matematis (y atas)
+  const fl=40+B*I*6;
+  arrow(c,cx,cy,cx+fx*fl,cy-fy*fl,k.ac2,5);
+  c.fillStyle=k.ac;c.fillText('I',cx+ix*70+8,cy-iy*70-8);c.fillStyle=k.ac2;c.fillText('F',cx+fx*fl+8,cy-fy*fl-8);
+  const nm=(x,y)=>x>0?'kanan':x<0?'kiri':y>0?'atas':'bawah';
+  $('r1').textContent='Arah F: '+nm(fx,fy)+' | F = B·I·L = '+(B*I*0.2).toFixed(2)+' N (untuk L = 0,2 m)';
+}
+let disp=0,playing=false,tPrev=0;
+function wirePath(c,x0,dx){c.beginPath();for(let i=0;i<=40;i++){const t=i/40,y=30+240*t,x=x0+dx*Math.sin(Math.PI*t);i?c.lineTo(x,y):c.moveTo(x,y)}c.stroke()}
+function draw2(){
+  const cv=$('c2'),c=cv.getContext('2d'),k=col();c.clearRect(0,0,520,300);
+  const s1=+$('d1').value,s2=+$('d2').value,i1=+$('i1').value,i2=+$('i2').value,d=+$('dd').value;
+  $('i1v').textContent=i1;$('i2v').textContent=i2;$('dv').textContent=d;
+  const gap=40+d*16,x1=260-gap/2,x2=260+gap/2,attract=s1===s2;
+  const mm=attract?gap/2-8:Math.min(110,260-gap/2-30);
+  const dx=disp*mm*(attract?1:-1);
+  c.lineCap='round';c.lineWidth=8;c.strokeStyle='#b08d57';
+  wirePath(c,x1,dx);wirePath(c,x2,-dx);
+  c.fillStyle=k.ink;[x1,x2].forEach(x=>{c.fillRect(x-10,22,20,6);c.fillRect(x-10,272,20,6)});
+  const xm=Math.sin(Math.PI*.25);
+  arrow(c,x1+dx*xm,s1>0?120:60,x1+dx*xm,s1>0?60:120,k.ac,4);
+  arrow(c,x2-dx*xm,s2>0?120:60,x2-dx*xm,s2>0?60:120,k.ac,4);
+  c.fillStyle=k.ink;c.font='14px sans-serif';c.fillText('I₁',x1-30,292);c.fillText('I₂',x2+14,292);
+  const len=20+Math.min(60,i1*i2/8),dir=attract?1:-1;
+  arrow(c,x1+dx,150,x1+dx+dir*len,150,k.ac2,5);arrow(c,x2-dx,150,x2-dx-dir*len,150,k.ac2,5);
+  const f=2e-7*i1*i2/(d/100);
+  let t=(attract?'Searah → TARIK-MENARIK':'Berlawanan arah → TOLAK-MENOLAK')+' | F/L = '+f.toExponential(2)+' N/m';
+  if(disp>=1)t+=' ✔ kawat '+(attract?'saling mendekat':'saling menjauh');
+  $('r2').textContent=t;
+}
+function upd(){$('play').textContent=playing?'⏸ Jeda':'▶ Mainkan'}
+function chg(){playing=false;disp=0;upd();draw2()}
+function tick(ts){
+  if(!playing)return;
+  const dt=Math.min(.05,(ts-tPrev)/1000);tPrev=ts;
+  const st=(+$('i1').value)*(+$('i2').value)/(+$('dd').value);
+  const v=.35+.65*Math.min(1,Math.log10(1+st)/2.6);
+  disp=Math.min(1,disp+v*dt*.6);
+  if(disp>=1){playing=false;upd()}
+  draw2();
+  if(playing)requestAnimationFrame(tick);
+}
+$('play').onclick=()=>{if(disp>=1)disp=0;playing=!playing;if(playing){tPrev=performance.now();requestAnimationFrame(tick)}upd();draw2()};
+$('reset').onclick=chg;
+['d1','d2'].forEach(i=>$(i).onchange=()=>{$('rg').value='m';chg()});
+['i1','i2','dd'].forEach(i=>$(i).oninput=chg);
+$('rg').onchange=()=>{const v=$('rg').value;if(v==='p'){$('d1').value='-1';$('d2').value='-1'}else if(v==='s'){$('d1').value='-1';$('d2').value='1'}chg()};
+['iDir','bDir','iR','bR'].forEach(i=>$(i).oninput=draw1);
+matchMedia('(prefers-color-scheme:dark)').onchange=()=>{draw1();draw2()};
+const TFK={1:'S',2:'B'},TFE={1:'Salah. Pada F = B·I·L·sin θ, kawat yang sejajar medan (θ = 0°) memiliki sin θ = 0 sehingga F = 0. Gaya maksimum terjadi saat kawat tegak lurus medan (θ = 90°).',2:'Benar. F/L = μ₀·I₁·I₂ / (2π·d), sehingga F/L berbanding terbalik dengan d. Jarak dua kali → gaya per satuan panjang setengah kali.'};
+function esc(t){return String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function cekTF(n){
+  const r=document.querySelector('input[name=tf'+n+']:checked'),o=$('tfr'+n);
+  if(!r){o.textContent='Pilih Benar atau Salah dulu.';return}
+  o.innerHTML=(r.value===TFK[n]?'✔ Tepat! ':'✘ Belum tepat. ')+esc(TFE[n]);
+}
+function prep(){
+  document.querySelectorAll('textarea').forEach(t=>{
+    let p=t.nextElementSibling;
+    if(!p||!p.classList.contains('ptxt')){p=document.createElement('div');p.className='ptxt';t.after(p)}
+    p.textContent=t.value;
+  });
+}
+function cetak(){prep();window.print()}
+addEventListener('beforeprint',prep);
+const UP={1:[],2:[]};
+function showUp(n){
+  $('ui'+n).innerHTML=UP[n].map((f,i)=>'<div class="fcard">📎 <b>'+esc(f.name)+'</b> ('+Math.max(1,Math.round(f.size/1024))+' KB)<img src="'+f.data+'" alt="Foto jawaban"><div class="ctl" style="justify-content:flex-start"><a class="btn" href="'+f.data+'" download="'+esc(f.name)+'">⬇ Unduh gambar</a><button class="btn" style="background:var(--ac)" onclick="delUp('+n+','+i+')">Hapus</button></div></div>').join('');
+}
+function upl(n,inp){
+  Array.from(inp.files).forEach(f=>{
+    if(f.type.indexOf('image/')!==0){alert('Hanya file gambar (JPG/PNG) yang bisa diunggah agar ikut masuk ke PDF.');return}
+    if(f.size>3*1024*1024){alert(f.name+': ukuran maksimal 3 MB.');return}
+    const r=new FileReader();
+    r.onload=()=>{UP[n].push({name:f.name,size:f.size,data:r.result});showUp(n)};
+    r.readAsDataURL(f);
+  });
+  inp.value='';
+}
+function delUp(n,i){UP[n].splice(i,1);showUp(n)}
+draw1();draw2();
+</script>
+</body>
+</html>
