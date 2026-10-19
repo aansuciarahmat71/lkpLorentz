@@ -43,6 +43,9 @@ canvas{width:100%;max-width:520px;display:block;margin:8px auto;border:1px solid
 .fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.25;margin:0 2px}.fr>span:first-child{border-bottom:1.5px solid currentColor;padding:0 4px}
 .nt{margin-top:6px;font-size:.95rem}
 textarea{resize:vertical;overflow:hidden;font-size:16px;line-height:1.5}
+.tw{position:relative}.tw textarea{resize:none;display:block;padding-bottom:36px}
+.rh{position:absolute;right:6px;bottom:6px;width:32px;height:32px;border-radius:8px;background:var(--ac2);color:#fff;display:flex;align-items:center;justify-content:center;cursor:ns-resize;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 1px 5px rgba(0,0,0,.45)}
+@media print{.rh{display:none}}
 .tfrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0}.ptxt{display:none}
 @media print{:root{--bg:#fff;--card:#fff;--ink:#000;--mut:#444;--line:#999;--ac:#1d5c8a;--ac2:#b5472a}
 textarea{display:none}.ptxt{display:block;border:1px solid #999;border-radius:6px;padding:6px;white-space:pre-wrap;min-height:2.2em;margin-bottom:6px}
@@ -272,8 +275,21 @@ function upl(n,inp){
   inp.value='';
 }
 function delUp(n,i){UP[n].splice(i,1);showUp(n)}
-function grow(t){t.style.height='auto';t.style.height=Math.max(t.scrollHeight+2,70)+'px'}
+function grow(t){t.style.height='auto';t.style.height=Math.max(t.scrollHeight+2,70,t._min||0)+'px'}
 function growAll(){document.querySelectorAll('textarea').forEach(grow)}
+document.querySelectorAll('textarea').forEach(t=>{
+  const w=document.createElement('div');w.className='tw';t.parentNode.insertBefore(w,t);w.appendChild(t);
+  const h=document.createElement('div');h.className='rh';h.title='Tarik untuk memperbesar kotak';
+  h.innerHTML='<svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3L13 13M13 13H7M13 13V7M3 3H9M3 3V9"/></svg>';
+  w.appendChild(h);
+  h.addEventListener('pointerdown',e=>{
+    e.preventDefault();try{h.setPointerCapture(e.pointerId)}catch(x){}
+    const y0=e.clientY,h0=t.offsetHeight;
+    const mv=ev=>{const nh=Math.max(70,h0+ev.clientY-y0);t._min=nh;t.style.height=nh+'px'};
+    const up=()=>{h.removeEventListener('pointermove',mv);h.removeEventListener('pointerup',up);h.removeEventListener('pointercancel',up)};
+    h.addEventListener('pointermove',mv);h.addEventListener('pointerup',up);h.addEventListener('pointercancel',up);
+  });
+});
 document.querySelectorAll('textarea').forEach(t=>t.addEventListener('input',()=>grow(t)));
 document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>setTimeout(growAll,0)));
 addEventListener('resize',growAll);
